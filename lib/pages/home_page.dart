@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:ctrip_flutter/dao/home_dao.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 
@@ -15,7 +18,7 @@ class _HomePageState extends State<HomePage> {
   // 设置 AppBar 透明度
   double appBarAlpha = 0;
   // 基准偏移量基准
-  static const APP_BAR_SCROLL_OFFSET = 100.0;
+  static const APP_BAR_SCROLL_OFFSET = 140.0;
 
   // Banner 图 图片列表
   final banners = [
@@ -23,6 +26,47 @@ class _HomePageState extends State<HomePage> {
     'https://dimg04.c-ctrip.com/images/zg0215000000yomk6CDCE.jpg',
     'https://dimg04.c-ctrip.com/images/zg0616000000yyjj13FAD.jpg'
   ];
+
+  String resultStr = 'Loading HomePage...';
+
+  @override
+  void initState() {
+    super.initState();
+
+    loadData2();
+  }
+
+  //加载网络请求的第一种方式
+  loadData() {
+    HomeDao.fetch().then((homeModel) {
+
+      setState(() {
+        resultStr = json.encode(homeModel);
+      });
+
+    }).catchError((e){
+      resultStr = e.toString();
+    });
+  }
+
+  //加载网络请求的第二种方式
+  loadData2() async {
+
+    try {
+
+      var homeModel = await HomeDao.fetch();
+      setState(() {
+        resultStr = json.encode(homeModel);
+      });
+
+    }catch (e) {
+      setState(() {
+        resultStr = e.toString();
+      });
+    }
+
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +83,8 @@ class _HomePageState extends State<HomePage> {
                     //当事件是滚动事件 且是 ListView （scrollNotification.depth == 0 表示只监听第一个 child 的滚动） 滚动时
                     onScroll(scrollNotification.metrics.pixels);
                   }
+
+                  return false;
                 },
                 child: ListView( //ListView 处于会自动把顶部或者四周的安全区空间预留出来
                   children: <Widget>[
@@ -55,9 +101,9 @@ class _HomePageState extends State<HomePage> {
                     ),
                     Container(
                       height: 800,
-                      color: Colors.lightBlueAccent,
+                      color: Colors.white,
+                      child: Text(resultStr),
                     ),
-
                   ],
                 )
             )
