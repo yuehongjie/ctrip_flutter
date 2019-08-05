@@ -16,7 +16,7 @@ class LoadingContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    //print('isLoading: $isLoading');
+    print('isLoading: $isLoading');
 
     return Stack(
       children: <Widget>[

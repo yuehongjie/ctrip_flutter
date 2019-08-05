@@ -1,11 +1,10 @@
-import 'dart:convert';
+
 
 import 'package:ctrip_flutter/dao/home_dao.dart';
 import 'package:ctrip_flutter/model/common_model.dart';
 import 'package:ctrip_flutter/model/grid_nav_model.dart';
 import 'package:ctrip_flutter/model/sales_box_model.dart';
 import 'package:ctrip_flutter/widget/grid_nav.dart';
-import 'package:ctrip_flutter/widget/loading_container.dart';
 import 'package:ctrip_flutter/widget/loca_nav.dart';
 import 'package:ctrip_flutter/widget/sales_box.dart';
 import 'package:ctrip_flutter/widget/sub_nav.dart';
@@ -29,146 +28,147 @@ class _HomePageState extends State<HomePage> {
   // 基准偏移量基准
   static const APP_BAR_SCROLL_OFFSET = 140.0;
 
-  // Banner 图 图片列表
-  final banners = [
-    'https://dimg04.c-ctrip.com/images/zg0m15000000yqwx03AC2.jpg',
-    'https://dimg04.c-ctrip.com/images/zg0215000000yomk6CDCE.jpg',
-    'https://dimg04.c-ctrip.com/images/zg0616000000yyjj13FAD.jpg'
-  ];
-
-  String resultStr = 'Loading HomePage...';
-
   List<CommonModel> _bannerList = [];
   List<CommonModel> _localNavList;
   List<CommonModel> _subNavList;
   GridNavModel _gridNavModel;
   SalesBoxModel _salesBoxModel;
 
-
-  bool _isLoading = true;
+  bool shouldRefresh = true;
+  var _listView;
+  var _futureFutureBuilder;
+  double statusBarHeight = 0;
 
   @override
   void initState() {
     super.initState();
-
-    loadData2();
-  }
-
-  //加载网络请求的第一种方式
-  Future<void> loadData() {
-    HomeDao.fetch().then((homeModel) {
-
-      setState(() {
-        resultStr = json.encode(homeModel);
-      });
-
-    }).catchError((e){
-      resultStr = e.toString();
-    });
-
-    return null;
+    _futureFutureBuilder = loadData();
   }
 
   //加载网络请求的第二种方式
   //下拉刷新需要返回 Future, 但又不需要结果，所以加上 Future<void>
-  Future<void> loadData2() async {
-
-    try {
+  //使用 FutureBuilder 等待网络的请求和结果，并且 FutureBuilder 会自动调用 setState
+  Future<void> loadData() async {
 
       var homeModel = await HomeDao.fetch();
-      setState(() {
 
-        _bannerList = homeModel.bannerList;
-        _localNavList = homeModel.localNavList;
-        _gridNavModel = homeModel.gridNav;
-        _subNavList = homeModel.subNavList;
-        _salesBoxModel = homeModel.salesBox;
+      _bannerList = homeModel.bannerList;
+      _localNavList = homeModel.localNavList;
+      _gridNavModel = homeModel.gridNav;
+      _subNavList = homeModel.subNavList;
+      _salesBoxModel = homeModel.salesBox;
 
-        _isLoading = false;
-        
-      });
+      shouldRefresh = true;
 
-    }catch (e) {
-      setState(() {
-        resultStr = e.toString();
-        _isLoading = false;
-      });
-    }
-
+      //如果发生异常，会被 FutureBuilder 的 AsyncSnapshot 捕获，在那可以显示错误 view
+      //throw Exception('错误异常测试');
   }
 
 
   @override
   Widget build(BuildContext context) {
+    return Stack(
+      //使用 Stack 实现叠加的效果
+      children: <Widget>[
 
-    return LoadingContainer( //加载进度指示器
-      isLoading: _isLoading,
-      child: Stack(
-        //使用 Stack 实现叠加的效果
-        children: <Widget>[
+        //设置背景色
+        Container(
+          color: Color(0xfff2f2f2),
+        ),
 
-          //设置背景色
-          Container(
-            color: Color(0xfff2f2f2),
-          ),
+        //移除 ListView 顶部的 padding，延伸到状态栏下方
+        MediaQuery.removePadding(
+          context: context,
+          removeTop: true, //移除 ListView 顶部的 padding
+          child: RefreshIndicator( //下拉刷新
+            onRefresh: loadData,
+            child: NotificationListener( //添加滑动监听
+              onNotification: (scrollNotification){ //监听回调
+                if(scrollNotification is ScrollUpdateNotification && scrollNotification.depth == 0) {
+                  //当事件是滚动事件 且是 ListView （scrollNotification.depth == 0 表示只监听第一个 child 的滚动） 滚动时
+                  onScroll(scrollNotification.metrics.pixels);
+                }
 
-          //移除 ListView 顶部的 padding，延伸到状态栏下方
-          MediaQuery.removePadding(
-              context: context,
-              removeTop: true, //移除 ListView 顶部的 padding
-              child: RefreshIndicator( //下拉刷新
-                onRefresh: loadData2,
-                child: NotificationListener( //添加滑动监听
-                    onNotification: (scrollNotification){ //监听回调
-                      if(scrollNotification is ScrollUpdateNotification && scrollNotification.depth == 0) {
-                        //当事件是滚动事件 且是 ListView （scrollNotification.depth == 0 表示只监听第一个 child 的滚动） 滚动时
-                        onScroll(scrollNotification.metrics.pixels);
-                      }
-
-                      return false;
-                    },
-                    child: _listView,
-                ),
+                return false;
+              },
+              child: FutureBuilder( // FutureBuilder 接收一个 future，初次加载有 waiting 状态，可用来做加载中处理
+                builder: _futureBuild,
+                future: _futureFutureBuilder, //虽然网上说 设置一个（暂时）不变的 future 可以避免重绘，但是好像没效果？？
               ),
+            ),
           ),
+        ),
 
-          //第二个 child 是自定义的可以改变透明度的 AppBar
-          _appBar,
-        ],
-      ),
+        //第二个 child 是自定义的可以改变透明度的 AppBar
+        _appBar,
+      ],
     );
   }
 
-  Widget get _listView {
-    return ListView( //ListView 处于会自动把顶部或者四周的安全区空间预留出来
-      children: <Widget>[
+  Widget _futureBuild(BuildContext context, AsyncSnapshot snapshot) {
+    switch (snapshot.connectionState) {
+      case ConnectionState.none:
+      case ConnectionState.active:
+      case ConnectionState.waiting:
+        print('waiting');
+        return Center(
+          child: CircularProgressIndicator(),
+        );
+      case ConnectionState.done:
+        //print('done');
+        if (snapshot.hasError) return _errView(snapshot.error);
+        return createListView();
+      default:
+        return _errView('Loading...');
+    }
+  }
 
-        //banner 图
-        _banner,
-
-        //首页小图标导航 外部有 padding
-        Padding(
-          padding: EdgeInsets.fromLTRB(6, 4, 6, 4),
-          child: LocalNav(localNavList: _localNavList,),
-        ),
-
-        //首页卡片导航 外部有 padding
-        Padding(
-          padding: EdgeInsets.fromLTRB(6, 0, 6, 4),
-          child: GridNav(gridNavModel: _gridNavModel,),
-        ),
-
-        //卡片下方子导航
-        Padding(
-          padding: EdgeInsets.fromLTRB(6, 0, 6, 4),
-          child: SubNav(subNavList: _subNavList,),
-        ),
-
-        //底部 View
-        SalesBox(salesBoxModel: _salesBoxModel,),
-
-      ],
+  Widget _errView(dynamic msg) {
+    return Center(
+      child: Text('Error: $msg'),
     );
+  }
+
+  Widget createListView() {
+
+    //要把 _listView 做缓存，不在状态栏透明度变化（滑动改变）的时候，一直重绘，否则会滑动有点卡
+    if (shouldRefresh) {
+       print('Create A New List...');
+       shouldRefresh = false;
+
+      _listView = ListView( //ListView 处于会自动把顶部或者四周的安全区空间预留出来
+        children: <Widget>[
+
+          //banner 图
+          _banner,
+
+          //首页小图标导航 外部有 padding
+          Padding(
+            padding: EdgeInsets.fromLTRB(6, 4, 6, 4),
+            child: LocalNav(localNavList: _localNavList,),
+          ),
+
+          //首页卡片导航 外部有 padding
+          Padding(
+            padding: EdgeInsets.fromLTRB(6, 0, 6, 4),
+            child: GridNav(gridNavModel: _gridNavModel,),
+          ),
+
+          //卡片下方子导航
+          Padding(
+            padding: EdgeInsets.fromLTRB(6, 0, 6, 4),
+            child: SubNav(subNavList: _subNavList,),
+          ),
+
+          //底部活动 View
+          SalesBox(salesBoxModel: _salesBoxModel,),
+
+        ],
+      );
+    }
+
+    return _listView;
+
   }
 
   ///banner 图
@@ -196,14 +196,20 @@ class _HomePageState extends State<HomePage> {
 
   /// appbar
   Widget get _appBar {
+
+    if (statusBarHeight == 0.0) {
+      statusBarHeight = MediaQuery.of(context).padding.top;
+      print('statusBarHeight: $statusBarHeight');
+    }
+
     return Opacity(
       opacity: appBarAlpha,
       child: Container(
-        height: 80,
+        height: statusBarHeight + 50,
         color: Colors.white,
-        child: Center(
-          child: Padding(
-            padding: EdgeInsets.only(top:30),
+        child: Padding(
+          padding: EdgeInsets.only(top:statusBarHeight),
+          child: Center(
             child: Text('首页'),
           ),
         ),
