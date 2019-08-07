@@ -7,6 +7,7 @@ import 'package:ctrip_flutter/model/sales_box_model.dart';
 import 'package:ctrip_flutter/widget/grid_nav.dart';
 import 'package:ctrip_flutter/widget/loca_nav.dart';
 import 'package:ctrip_flutter/widget/sales_box.dart';
+import 'package:ctrip_flutter/widget/search_bar.dart';
 import 'package:ctrip_flutter/widget/sub_nav.dart';
 import 'package:ctrip_flutter/widget/web_view.dart';
 import 'package:flutter/material.dart';
@@ -38,6 +39,9 @@ class _HomePageState extends State<HomePage> {
   var _listView;
   var _futureFutureBuilder;
   double statusBarHeight = 0;
+
+  var _searchBar;
+  bool _currLightMode ;
 
   @override
   void initState() {
@@ -202,19 +206,46 @@ class _HomePageState extends State<HomePage> {
       print('statusBarHeight: $statusBarHeight');
     }
 
-    return Opacity(
-      opacity: appBarAlpha,
-      child: Container(
-        height: statusBarHeight + 50,
-        color: Colors.white,
-        child: Padding(
-          padding: EdgeInsets.only(top:statusBarHeight),
-          child: Center(
-            child: Text('首页'),
-          ),
+
+    return
+      Container(
+        decoration: BoxDecoration(
+          color: Color.fromARGB((appBarAlpha * 255).toInt(), 255, 255, 255),
+          border: _isLightMode() ? Border(bottom: BorderSide(color: Colors.black12)) : null,
         ),
-      ),
-    );
+        child: Padding(
+          padding: EdgeInsets.only(top: statusBarHeight),
+          child: _searchView(),
+        ),
+      );
+
+//    return Opacity(
+//      opacity: appBarAlpha,
+//      child: Container(
+//        height: statusBarHeight + 50,
+//        color: Colors.white,
+//        child: Padding(
+//          padding: EdgeInsets.only(top:statusBarHeight),
+//          child:SearchBar(),
+//        ),
+//      ),
+//    );
+  }
+
+   Widget _searchView() {
+
+    //状态没变化，不重绘 searchBar
+    var isLightMode = _isLightMode();
+    if(_currLightMode == null || isLightMode != _currLightMode) {
+      print('Create A New SearchBar');
+      _searchBar =  SearchBar(
+        searchType: isLightMode ? SearchType.HomeLight : SearchType.Home,
+        defaultText: '酒店、车票、旅游、攻略',
+      );
+      _currLightMode = isLightMode;
+    }
+     return _searchBar;
+
   }
 
   /// 根据列表滚动的偏移量，来动态设置 AppBar 的透明度，理论上 [offset] 是不会小于 0 的
@@ -232,6 +263,10 @@ class _HomePageState extends State<HomePage> {
       appBarAlpha = alpha;
     });
     //print('offset: $offset  alpha: $alpha');
+  }
+
+  bool _isLightMode(){
+    return appBarAlpha > 0.7;
   }
 
   ///抽取点击事件，把需要被点击的控件，放入 GestureDetector 中
