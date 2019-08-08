@@ -31,7 +31,7 @@ class _MainNavigatorState extends State<MainNavigator> {
         controller: controller,
         children: <Widget>[ // 四个导航页面
           HomePage(),
-          SearchPage(),
+          SearchPage(showLeftView: false, hint: '酒店、车票、旅游、攻略',),
           TravelPage(),
           MyPage(),
         ],

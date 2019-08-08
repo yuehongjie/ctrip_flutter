@@ -176,13 +176,14 @@ class _WebViewState extends State<WebView> {
 
                 //标题绝对定位 左右距离 stack 的左右均为 0， 即水平方向铺满
                 Positioned(
-                  left: 0,
-                  right: 0,
+                  left: 46,
+                  right: 10,
                   child: Center(
                     child: Text(
                       widget.title ?? '',
                       style: TextStyle(color: backButtonColor, fontSize: 16),
                       textDirection: TextDirection.ltr,
+                      overflow: TextOverflow.ellipsis, //超出省略
                     ),
                   ),
                 )

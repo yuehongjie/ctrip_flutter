@@ -1,9 +1,17 @@
 import 'package:ctrip_flutter/dao/search_dao.dart';
 import 'package:ctrip_flutter/model/search_model.dart';
 import 'package:ctrip_flutter/widget/search_bar.dart';
+import 'package:ctrip_flutter/widget/web_view.dart';
 import 'package:flutter/material.dart';
 
 class SearchPage extends StatefulWidget {
+
+  final String hint;
+  final String defaultText;
+  final bool showLeftView;
+
+  const SearchPage({Key key, this.hint, this.defaultText, this.showLeftView}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() {
     return _SearchPageState();
@@ -16,25 +24,44 @@ class _SearchPageState extends State<SearchPage> {
   SearchModel _searchModel;
   String _currKeyword;
 
+  var normalStyle = TextStyle(color: Colors.black54, fontSize: 15);
+  var keywordStyle= TextStyle(color: Colors.blue, fontSize: 15);
+  var regExp = RegExp('^(-?[1-9]\d*(\.\d*[1-9])?)|(-?0\.\d*[1-9])\$');
+
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(),
+    //这里的 widget 就是 State.widget 即 State 泛型的对象 即 WebView
+    var statusBarHeight= MediaQuery.of(context).padding.top;
+    print('statusBarHeight: $statusBarHeight');
+    return  Scaffold(
       body: Column(
         children: <Widget>[
+          //填充状态栏
+          Container(
+            height: statusBarHeight <= 0 ? 30 : statusBarHeight,
+            color: Colors.white,
+          ),
+
           SearchBar(
             searchType: SearchType.Search,
-            hint: '旅游攻略、网红景点打卡',
-            showLeftView: false,
+            hint: widget.hint,
+            defaultText: widget.defaultText,
+            showLeftView: widget.showLeftView,
             onTextChange: _onTextChange,
             onVoiceBtnClick: _onVoiceBtnClick,
+            onBack: _onBack,
           ),
-         Expanded(
-           child: ListView.builder(
-             itemBuilder: _itemBuilder,
-             itemCount: _searchModel?.data?.length ?? 0,
-           ),
-         ),
+          Expanded(
+            child: MediaQuery.removePadding(
+              removeTop: true,
+              context: context,
+              child: ListView.builder(
+                itemBuilder: _itemBuilder,
+                itemCount: _searchModel?.data?.length ?? 0,
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -42,50 +69,103 @@ class _SearchPageState extends State<SearchPage> {
 
   Widget _itemBuilder(BuildContext context, int pos) {
 
-    var searchItem = _searchModel.data.elementAt(pos);
+    var searchItem = _searchModel.data[pos];
 
-    return Container(
-      padding: EdgeInsets.all(10),
-      child: Column(
-        children: <Widget>[
-          Row(
+    return _wrapGesture(
+        context,
+        searchItem.url,
+        searchItem.word,
+        Container(
+          padding: EdgeInsets.all(10),
+          color: Colors.white,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
+              //图标
               _itemIcon(searchItem.type),
+              //内容
               Expanded(
-                child: _itemTitle(searchItem),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          _itemTitle(searchItem.word),
+                          _itemSubTitle(searchItem),
+                        ],
+                      ),
+                    ),
+                    _itemPrice(searchItem.price),
+                  ],
+                ),
               ),
             ],
           ),
-
-        ],
-      ),
+        )
     );
   }
 
-  Widget _itemTitle(SearchItem item) {
-    // world wallw -- w --> ['', 'orld ', 'all','']
-    String word = item.word;
-    String l;
+  _itemSubTitle(SearchItem item){
 
-    List<String> splitList = item.word.split(_currKeyword);
-    return Text(
-      item.word,
-      style: TextStyle(
-        fontSize: 16,
-        color: Colors.black,
-      ),
-    );
-  }
+    String subTitle = item.districtname ?? '' + item.zonename ?? '' + item.star ?? '';
 
-  void subStr(String word, String key) {
-    int index = word.indexOf(key);
-    if(index != -1){
-      String normal = word.substring(0, index);
-      //l = l + normal+key;
-      String sub = word.substring(index + key.length, word.length);
-      subStr(sub, key);
+    if (subTitle.length == 0) {
+      return Container(width: 0, height: 0,);
     }
+
+    return Container(
+      padding: EdgeInsets.only(top: 8),
+      alignment: AlignmentDirectional.centerStart,
+      child: Text(
+        subTitle,
+        style: TextStyle(color: Colors.grey, fontSize: 13),
+      ),
+    );
   }
+
+  _itemPrice(String price) {
+
+    if (price == null) {
+      return Container(height: 0, width: 0,);
+    }
+
+    return Container(
+      margin: EdgeInsets.only(left: 8),
+      child: Text(
+        regExp.hasMatch(price) ? '￥$price' : price,
+        style: TextStyle(
+        color: Colors.orange,
+        fontSize: 14,
+        ),
+      ),
+    );
+
+  }
+
+  Widget _itemTitle(String title) {
+
+    // world wallw   -- w -->   ['', 'orld ', 'all','']
+    var splitList = title.split(_currKeyword);
+
+    List<TextSpan> spanList = [];
+
+    // 在每一个被拆分的元素（除了最后一个）后，加上关键字，最后再加上最后一个元素，就是原来的字符串
+    for (int i = 0; i < splitList.length - 1; i++) {
+
+      spanList.add(TextSpan(style: normalStyle, text:splitList[i]));
+      spanList.add(TextSpan(style: keywordStyle, text:_currKeyword));
+
+    }
+    spanList.add(TextSpan(style: normalStyle, text:splitList[splitList.length - 1]));
+
+    return RichText(
+      text: TextSpan(
+        children: spanList,
+      ),
+    );
+  }
+
 
   Widget _itemIcon(String type){
 
@@ -118,11 +198,11 @@ class _SearchPageState extends State<SearchPage> {
         color: bgColor,
       ),
       padding: EdgeInsets.all(4),
-      margin: EdgeInsets.only(right: 8),
+      margin: EdgeInsets.only(right: 8,top: 2.5),
       child: Image.asset(
         iconPath,
-        height: 14,
-        width: 14,
+        height: 10,
+        width: 10,
       ),
     );
 
@@ -158,6 +238,27 @@ class _SearchPageState extends State<SearchPage> {
   //语音搜索
   _onVoiceBtnClick() {
 
+  }
+
+  _onBack(){
+    Navigator.pop(context);
+  }
+
+  ///抽取点击事件，把需要被点击的控件，放入 GestureDetector 中
+  _wrapGesture(BuildContext context, String url, String title, Widget child) {
+    return GestureDetector(
+      onTap: () {
+        print(url);
+        //跳转到 WebView 页面
+        Navigator.push(context, MaterialPageRoute(builder: (context) =>
+            WebView(
+              url: url,
+              title: title,
+            )
+        ));
+      },
+      child: child,
+    );
   }
 
 }

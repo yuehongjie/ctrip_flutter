@@ -9,6 +9,7 @@ class SearchBar extends StatefulWidget {
   final String hint;
   final String defaultText;
   final bool showLeftView;
+  final void Function() onBack;
   final void Function() onTap;
   final void Function() onVoiceBtnClick;
   final void Function(String) onTextChange;
@@ -18,6 +19,7 @@ class SearchBar extends StatefulWidget {
     this.hint = '',
     this.defaultText = '',
     this.showLeftView = true,
+    this.onBack,
     this.onTap,
     this.onVoiceBtnClick,
     this.onTextChange
@@ -33,6 +35,15 @@ class _SearchBarState extends State<SearchBar> {
   bool isInputEmpty = true ;
   TextEditingController _controller = TextEditingController();
 
+  @override
+  void initState() {
+
+    if (widget.defaultText != null ){
+      _controller.text = widget.defaultText ;
+    }
+
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -55,9 +66,12 @@ class _SearchBarState extends State<SearchBar> {
     if (widget.showLeftView) {
 
       if(widget.searchType == SearchType.Search) {
-        return Icon(
-          Icons.arrow_back_ios,
-          color: Colors.black54,
+        return _wrapTap(
+          widget.onBack,
+          Icon(
+            Icons.arrow_back_ios,
+            color: Colors.black54,
+          ),
         );
       }else{
 

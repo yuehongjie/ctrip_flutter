@@ -4,6 +4,7 @@ import 'package:ctrip_flutter/dao/home_dao.dart';
 import 'package:ctrip_flutter/model/common_model.dart';
 import 'package:ctrip_flutter/model/grid_nav_model.dart';
 import 'package:ctrip_flutter/model/sales_box_model.dart';
+import 'package:ctrip_flutter/pages/search_page.dart';
 import 'package:ctrip_flutter/widget/grid_nav.dart';
 import 'package:ctrip_flutter/widget/loca_nav.dart';
 import 'package:ctrip_flutter/widget/sales_box.dart';
@@ -42,6 +43,7 @@ class _HomePageState extends State<HomePage> {
 
   var _searchBar;
   bool _currLightMode ;
+  var defaultText = '酒店、车票、旅游、攻略';
 
   @override
   void initState() {
@@ -240,7 +242,8 @@ class _HomePageState extends State<HomePage> {
       print('Create A New SearchBar');
       _searchBar =  SearchBar(
         searchType: isLightMode ? SearchType.HomeLight : SearchType.Home,
-        defaultText: '酒店、车票、旅游、攻略',
+        defaultText: defaultText,
+        onTap: _jumpSearch,
       );
       _currLightMode = isLightMode;
     }
@@ -282,6 +285,16 @@ class _HomePageState extends State<HomePage> {
       },
       child: child,
     );
+  }
+
+  _jumpSearch(){
+    //跳转到 WebView 页面
+    Navigator.push(context, MaterialPageRoute(builder: (context) =>
+        SearchPage(
+          hint: defaultText,
+          showLeftView: true,
+        )
+    ));
   }
 
 }

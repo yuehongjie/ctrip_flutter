@@ -51,7 +51,7 @@ class SalesBox extends StatelessWidget {
                 colors: [Color(0xffff4e63), Color(0xffff6cc9)],
               )
             ),
-            padding: EdgeInsets.fromLTRB(8, 1, 8, 1),
+            padding: EdgeInsets.fromLTRB(8, 2, 8, 2),
             child: _wrapGesture(
               context,
               '更多福利',
