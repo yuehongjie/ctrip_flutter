@@ -1,5 +1,6 @@
 import 'package:ctrip_flutter/dao/search_dao.dart';
 import 'package:ctrip_flutter/model/search_model.dart';
+import 'package:ctrip_flutter/pages/speak_page.dart';
 import 'package:ctrip_flutter/widget/search_bar.dart';
 import 'package:ctrip_flutter/widget/web_view.dart';
 import 'package:flutter/material.dart';
@@ -23,11 +24,20 @@ class _SearchPageState extends State<SearchPage> {
 
   SearchModel _searchModel;
   String _currKeyword;
+  String defaultWord;
 
   var normalStyle = TextStyle(color: Colors.black54, fontSize: 15);
   var keywordStyle= TextStyle(color: Colors.blue, fontSize: 15);
   var regExp = RegExp('^(-?[1-9]\d*(\.\d*[1-9])?)|(-?0\.\d*[1-9])\$');
 
+  @override
+  void initState() {
+    //从语音识别页面带过来的数据，直接搜索
+    if (widget.defaultText != null) {
+      defaultWord = widget.defaultText;
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,15 +53,7 @@ class _SearchPageState extends State<SearchPage> {
             color: Colors.white,
           ),
 
-          SearchBar(
-            searchType: SearchType.Search,
-            hint: widget.hint,
-            defaultText: widget.defaultText,
-            showLeftView: widget.showLeftView,
-            onTextChange: _onTextChange,
-            onVoiceBtnClick: _onVoiceBtnClick,
-            onBack: _onBack,
-          ),
+          _searchBar,
           Expanded(
             child: MediaQuery.removePadding(
               removeTop: true,
@@ -64,6 +66,18 @@ class _SearchPageState extends State<SearchPage> {
           ),
         ],
       ),
+    );
+  }
+
+  SearchBar get _searchBar {
+    return SearchBar(
+      searchType: SearchType.Search,
+      hint: widget.hint,
+      defaultText: defaultWord,
+      showLeftView: widget.showLeftView,
+      onTextChange: _onTextChange,
+      onVoiceBtnClick: _onVoiceBtnClick,
+      onBack: _onBack,
     );
   }
 
@@ -235,8 +249,16 @@ class _SearchPageState extends State<SearchPage> {
     });
   }
 
-  //语音搜索
-  _onVoiceBtnClick() {
+  //语音识别
+  _onVoiceBtnClick() async {
+    //从语音识别返回的数据
+    var result = await Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return SpeakPage(isFromSearch: true,);
+    }));
+
+    if (result != null) {
+
+    }
 
   }
 

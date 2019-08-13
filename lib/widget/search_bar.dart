@@ -34,20 +34,24 @@ class _SearchBarState extends State<SearchBar> {
   //输入框是否有内容
   bool isInputEmpty = true ;
   TextEditingController _controller = TextEditingController();
+  String searchText;
 
   @override
   void initState() {
 
-    if (widget.defaultText != null ){
+    //预搜索的内容
+    if (widget.defaultText != null && widget.defaultText.length > 0 && widget.searchType != SearchType.Home ){
+      isInputEmpty = false;
       _controller.text = widget.defaultText ;
     }
+    print('default: ${widget.defaultText}');
 
     super.initState();
   }
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.fromLTRB(widget.showLeftView ? 10 : 0, 0, 10, 0),
+      padding: EdgeInsets.fromLTRB(widget.showLeftView ?? true ? 10 : 0, 0, 10, 0),
       child:  Row(
         children: [
           _generateLeftView(),
@@ -240,6 +244,10 @@ class _SearchBarState extends State<SearchBar> {
       onTap: callBack,
       child: child,
     );
+  }
+
+  setSearchText(String text) {
+    _controller.text = text;
   }
 
 }

@@ -1,0 +1,24 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.study.yu.plugin.asr" >
+
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <application>
+
+        <meta-data android:name="com.baidu.speech.APP_ID"
+            android:value="16996353" />
+        <meta-data
+            android:name="com.baidu.speech.API_KEY"
+            android:value="z8F7FHUTLEQOUaC4aWVF023o" />
+        <meta-data
+            android:name="com.baidu.speech.SECRET_KEY"
+            android:value="HdiOzLBawFqnBHFnf1Z6YHpxStMLL5Im" />
+
+        <service android:name="com.baidu.speech.VoiceRecognitionService" android:exported="false" />
+    </application>
+
+</manifest>

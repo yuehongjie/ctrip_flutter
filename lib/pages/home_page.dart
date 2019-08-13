@@ -5,6 +5,7 @@ import 'package:ctrip_flutter/model/common_model.dart';
 import 'package:ctrip_flutter/model/grid_nav_model.dart';
 import 'package:ctrip_flutter/model/sales_box_model.dart';
 import 'package:ctrip_flutter/pages/search_page.dart';
+import 'package:ctrip_flutter/pages/speak_page.dart';
 import 'package:ctrip_flutter/widget/grid_nav.dart';
 import 'package:ctrip_flutter/widget/loca_nav.dart';
 import 'package:ctrip_flutter/widget/sales_box.dart';
@@ -244,6 +245,7 @@ class _HomePageState extends State<HomePage> {
         searchType: isLightMode ? SearchType.HomeLight : SearchType.Home,
         defaultText: defaultText,
         onTap: _jumpSearch,
+        onVoiceBtnClick: _onVoiceBtnClick,
       );
       _currLightMode = isLightMode;
     }
@@ -295,6 +297,12 @@ class _HomePageState extends State<HomePage> {
           showLeftView: true,
         )
     ));
+  }
+
+  _onVoiceBtnClick() {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return SpeakPage();
+    }));
   }
 
 }
