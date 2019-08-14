@@ -213,7 +213,7 @@ class _SearchBarState extends State<SearchBar> {
         fontSize: 16,
         color: Color(0xff141414),
       ),
-      autofocus: true,
+      autofocus: false,
     );
   }
 
