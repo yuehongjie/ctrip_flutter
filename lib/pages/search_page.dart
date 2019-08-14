@@ -76,6 +76,7 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
+  // ListView 的 item
   Widget _itemBuilder(BuildContext context, int pos) {
 
     var searchItem = _searchModel.data[pos];
@@ -115,6 +116,7 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
+  //每行 item 的子标题
   _itemSubTitle(SearchItem item){
 
     String subTitle = item.districtname ?? '' + item.zonename ?? '' + item.star ?? '';
@@ -152,6 +154,7 @@ class _SearchPageState extends State<SearchPage> {
 
   }
 
+  //每行 item 的标题（关键字高亮）
   Widget _itemTitle(String title) {
 
     // world wallw   -- w -->   ['', 'orld ', 'all','']
@@ -160,6 +163,7 @@ class _SearchPageState extends State<SearchPage> {
     List<TextSpan> spanList = [];
 
     // 在每一个被拆分的元素（除了最后一个）后，加上关键字，最后再加上最后一个元素，就是原来的字符串
+    // 或者第一个元素 + 每一个元素（除了第一个元素）的前面加上关键字，就是原来的字符串
     for (int i = 0; i < splitList.length - 1; i++) {
 
       spanList.add(TextSpan(style: normalStyle, text:splitList[i]));
@@ -176,6 +180,7 @@ class _SearchPageState extends State<SearchPage> {
   }
 
 
+  // 每行 item 图标
   Widget _itemIcon(String type){
 
     //（默认的）背景色和图标
