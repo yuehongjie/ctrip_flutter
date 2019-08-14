@@ -25,18 +25,16 @@ class _SearchPageState extends State<SearchPage> {
   SearchModel _searchModel;
   String _currKeyword;
   String defaultWord;
+  TextEditingController controller = TextEditingController();
 
   var normalStyle = TextStyle(color: Colors.black54, fontSize: 15);
   var keywordStyle= TextStyle(color: Colors.blue, fontSize: 15);
   var regExp = RegExp('^(-?[1-9]\d*(\.\d*[1-9])?)|(-?0\.\d*[1-9])\$');
 
   @override
-  void initState() {
-    //从语音识别页面带过来的数据，直接搜索
-    if (widget.defaultText != null) {
-      defaultWord = widget.defaultText;
-    }
-    super.initState();
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -53,7 +51,16 @@ class _SearchPageState extends State<SearchPage> {
             color: Colors.white,
           ),
 
-          _searchBar,
+          SearchBar(
+            searchType: SearchType.Search,
+            hint: widget.hint,
+            defaultText: widget.defaultText,
+            showLeftView: widget.showLeftView,
+            controller: controller,
+            onTextChange: _onTextChange,
+            onVoiceBtnClick: _onVoiceBtnClick,
+            onBack: _onBack,
+          ),
           Expanded(
             child: MediaQuery.removePadding(
               removeTop: true,
@@ -66,18 +73,6 @@ class _SearchPageState extends State<SearchPage> {
           ),
         ],
       ),
-    );
-  }
-
-  SearchBar get _searchBar {
-    return SearchBar(
-      searchType: SearchType.Search,
-      hint: widget.hint,
-      defaultText: defaultWord,
-      showLeftView: widget.showLeftView,
-      onTextChange: _onTextChange,
-      onVoiceBtnClick: _onVoiceBtnClick,
-      onBack: _onBack,
     );
   }
 
@@ -257,7 +252,9 @@ class _SearchPageState extends State<SearchPage> {
     }));
 
     if (result != null) {
-
+      print('语音搜索：$result');
+      //改变输入框文字
+      controller.text = result;
     }
 
   }

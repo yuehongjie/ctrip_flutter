@@ -9,16 +9,19 @@ class SearchBar extends StatefulWidget {
   final String hint;
   final String defaultText;
   final bool showLeftView;
+  final TextEditingController controller;
   final void Function() onBack;
   final void Function() onTap;
   final void Function() onVoiceBtnClick;
   final void Function(String) onTextChange;
+
 
   SearchBar({
     this.searchType = SearchType.Home,
     this.hint = '',
     this.defaultText = '',
     this.showLeftView = true,
+    this.controller,
     this.onBack,
     this.onTap,
     this.onVoiceBtnClick,
@@ -33,19 +36,26 @@ class _SearchBarState extends State<SearchBar> {
 
   //输入框是否有内容
   bool isInputEmpty = true ;
-  TextEditingController _controller = TextEditingController();
+
   String searchText;
 
   @override
   void initState() {
 
-    //预搜索的内容
-    if (widget.defaultText != null && widget.defaultText.length > 0 && widget.searchType != SearchType.Home ){
-      isInputEmpty = false;
-      _controller.text = widget.defaultText ;
-    }
-    print('default: ${widget.defaultText}');
+    //添加文字变化监听
+    if (widget.searchType != SearchType.Home && widget.controller != null) {
 
+      widget.controller.addListener((){
+        //print('text change listener');
+        _onTextChange(widget.controller.text);
+      });
+
+      //预搜索的内容（从语音搜索页面携带数据过来）
+      if (widget.defaultText != null && widget.defaultText.length > 0){
+        widget.controller.text = widget.defaultText ;
+      }
+
+    }
     super.initState();
   }
   @override
@@ -130,9 +140,11 @@ class _SearchBarState extends State<SearchBar> {
       );
   }
 
+  //点击搜索按钮
   _onSearch() {
+    if (widget.controller == null) return;
     print('onSearch');
-    _onTextChange(_controller.text);
+    _onTextChange(widget.controller.text);
   }
 
   //home 页的文字，在不同状态下的颜色
@@ -181,16 +193,16 @@ class _SearchBarState extends State<SearchBar> {
   }
 
   _clearInputText() {
-    _controller?.clear();
-    _onTextChange('');
+    if (widget.controller == null) return;
+    widget.controller?.clear();
   }
 
   //搜索模式时 显示输入框
   Widget _createInputView() {
 
     return TextField(
-      controller: _controller,
-      onChanged: _onTextChange,
+      controller: widget.controller,
+      //onChanged: _onTextChange,
       decoration: InputDecoration(
         hintText: widget.hint,
         border: InputBorder.none,
@@ -205,9 +217,10 @@ class _SearchBarState extends State<SearchBar> {
     );
   }
 
+  //文字变化回调，发起搜索
   _onTextChange(String text) {
 
-    //print('_onTextChange: $text');
+    print('SearchBar _onTextChange: $text');
 
     //当状态发生变化，再更新 widget，减少重绘
     var isEmpty =  (text == null || text.length == 0);
@@ -247,7 +260,7 @@ class _SearchBarState extends State<SearchBar> {
   }
 
   setSearchText(String text) {
-    _controller.text = text;
+    widget.controller.text = text;
   }
 
 }
