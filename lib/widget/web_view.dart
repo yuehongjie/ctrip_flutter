@@ -46,7 +46,7 @@ class _WebViewState extends State<WebView> {
           print('load_url: ${state.url}');
           if (_isToMain(state.url) && !_exiting) {
             if (widget.backForbid ?? false) { //禁止返回上一个网页
-              flutterWebview.launch(widget.url);
+              flutterWebview.reloadUrl(widget.url);
             }else {
               Navigator.pop(context); //返回上一个页面
               _exiting = true; //防止重复返回

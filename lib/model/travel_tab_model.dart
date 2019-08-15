@@ -3,7 +3,7 @@
 class TravelTabModel {
   String url;
   Params params;
-  List<Tabs> tabs;
+  List<TabItem> tabs;
 
   TravelTabModel({this.url, this.params, this.tabs});
 
@@ -12,9 +12,9 @@ class TravelTabModel {
     params =
     json['params'] != null ? new Params.fromJson(json['params']) : null;
     if (json['tabs'] != null) {
-      tabs = new List<Tabs>();
+      tabs = new List<TabItem>();
       json['tabs'].forEach((v) {
-        tabs.add(new Tabs.fromJson(v));
+        tabs.add(new TabItem.fromJson(v));
       });
     }
   }
@@ -74,13 +74,13 @@ class PagePara {
   }
 }
 
-class Tabs {
+class TabItem {
   String labelName;
   String groupChannelCode;
 
-  Tabs({this.labelName, this.groupChannelCode});
+  TabItem({this.labelName, this.groupChannelCode});
 
-  Tabs.fromJson(Map<String, dynamic> json) {
+  TabItem.fromJson(Map<String, dynamic> json) {
     labelName = json['labelName'];
     groupChannelCode = json['groupChannelCode'];
   }

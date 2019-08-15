@@ -7,7 +7,8 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
-    <application>
+    <application
+        android:networkSecurityConfig="@xml/network_security_config">
 
         <meta-data android:name="com.baidu.speech.APP_ID"
             android:value="16996353" />

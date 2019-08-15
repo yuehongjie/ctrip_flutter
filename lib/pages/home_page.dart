@@ -24,7 +24,7 @@ class HomePage extends StatefulWidget {
 
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
 
   // 设置 AppBar 透明度
   double appBarAlpha = 0;
@@ -74,6 +74,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Stack(
       //使用 Stack 实现叠加的效果
       children: <Widget>[
@@ -304,5 +305,9 @@ class _HomePageState extends State<HomePage> {
       return SpeakPage();
     }));
   }
+
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
 
 }

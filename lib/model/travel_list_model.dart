@@ -3,15 +3,15 @@
 class TravelListModel {
 
   int totalCount;
-  List<TravelItemModel> resultList;
+  List<TravelItem> resultList;
 
   TravelListModel({this.totalCount, this.resultList});
 
   TravelListModel.fromJson(Map<String, dynamic> json) {
     totalCount = json['totalCount'];
     if (json['resultList'] != null) {
-      resultList = new List<TravelItemModel>();
-      json['resultList'].forEach((v) { resultList.add(new TravelItemModel.fromJson(v)); });
+      resultList = new List<TravelItem>();
+      json['resultList'].forEach((v) { resultList.add(new TravelItem.fromJson(v)); });
     }
   }
 
@@ -26,13 +26,13 @@ class TravelListModel {
   }
 }
 
-class TravelItemModel {
+class TravelItem {
   int type;
   Article article;
 
-  TravelItemModel({this.type, this.article});
+  TravelItem({this.type, this.article});
 
-  TravelItemModel.fromJson(Map<String, dynamic> json) {
+  TravelItem.fromJson(Map<String, dynamic> json) {
     type = json['type'];
     article = json['article'] != null ? new Article.fromJson(json['article']) : null;
   }
@@ -228,11 +228,11 @@ class Images {
   int imageId;
   String dynamicUrl;
   String originalUrl;
-  int width;
-  int height;
+  double width;
+  double height;
   int mediaType;
-  int lat;
-  int lon;
+  double lat;
+  double lon;
   bool isWaterMarked;
 
   Images({this.imageId, this.dynamicUrl, this.originalUrl, this.width, this.height, this.mediaType, this.lat, this.lon, this.isWaterMarked});
@@ -320,11 +320,11 @@ class IconImage {
   int imageId;
   String dynamicUrl;
   String originalUrl;
-  int width;
-  int height;
+  double width;
+  double height;
   int mediaType;
-  int lat;
-  int lon;
+  double lat;
+  double lon;
 
   IconImage({this.imageId, this.dynamicUrl, this.originalUrl, this.width, this.height, this.mediaType, this.lat, this.lon});
 
