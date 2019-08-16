@@ -3,7 +3,7 @@ import 'package:ctrip_flutter/pages/search_page.dart';
 import 'package:ctrip_flutter/plugin/asr_plugin.dart';
 import 'package:flutter/material.dart';
 
-const double MIC_SIZE = 80;
+const double MIC_SIZE = 100;
 
 class SpeakPage extends StatefulWidget {
 
@@ -280,6 +280,7 @@ class AnimatedMic extends AnimatedWidget {
         child: Icon(
           Icons.mic,
           color: Colors.white,
+          size: MIC_SIZE/3,
         ),
       ),
     );
