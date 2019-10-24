@@ -1,6 +1,6 @@
 # ctrip_flutter
 
-Flutter demo 仿携程 App 
+Flutter App 
 
 ## Getting Started
 
